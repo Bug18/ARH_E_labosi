@@ -1,0 +1,67 @@
+MAIN    MOV SP, #0x10000
+        MOV R0, #0x0            ; result register for KUB function
+        MOV R1, #0x0
+        MOV R2, #0x0
+        MOV R3, #0x0
+        MOV R4, #0x0
+        MOV R5, #0x0
+        MOV R6, #BLK            ; address counter for tracking position in memory block
+        MOV R7, #0              ; counter, counts how many times we read or written to memory
+        MOV R8, #8 
+
+
+LOOP    LDR R9, [R6], #0x4      
+        STR R9, PRM             ; stores R9 (x) into PRM location in memory (prepearing argument for function FUN)
+
+        BL FUN                  ; calling function FUN
+
+        LDR R4, REZ             ; loading result from FUN function
+        
+        MOV R5, #3
+        MUL R1, R4, R5
+        MOV R5, #0
+        
+        STR R1, [R6, #0x10]     ; storing result in memory to read address offset by 20
+
+        CMP R7, #4              ; compares R7 with 4 to see if we reached end of a block
+        ADD R7, R7, #1          ; R7++
+        
+        BEQ END
+        
+        B LOOP
+        
+        
+FUN     LDR R1, PRM             ; loads x from PRM location in memory into R1
+
+        STMFD R13!, {LR}        ; store LR to stack to be able to return to MAIN from FUN as we have nested functions
+        STMFD R13!, {R1}        ; pushes R1 to stack
+        
+        BL KUB                  ; calls KUB function
+
+        LDMFD R13!, {LR}        ; restores LR
+
+        MUL R2, R1, R8          ; x * 8
+        ADD R3, R0, R2          ; x ^ 3 + x * 8
+
+        STR R3, REZ             ; stores result from R3 to REZ location in memory
+
+        MOV PC, LR              ; return
+        
+        
+
+KUB     LDMFD R13!, {R4}        ; pops item from stack, puts it in R0 and decrements R13 (SP)
+        MUL R5, R4, R4          ; R5 = R4 ^ 2
+        MUL R0, R5, R4          ; R0 = R5 * R4 -> R0 = y ^ 3 (R0 has result)
+
+        MOV PC, LR              ; return
+
+
+
+END     SWI 0x123456
+
+
+        ORG 0x1000
+BLK     DW 0x5, 0xFFFFFFFB, 0x0, 0x64, 0xFFFFFF38
+RBLK    DW 0x0, 0x0, 0x0, 0x0, 0x0
+PRM     DW 0x0
+REZ     DW 0x0

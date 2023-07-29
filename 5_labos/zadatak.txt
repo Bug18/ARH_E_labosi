@@ -1,0 +1,38 @@
+ZADATAK:
+Model na vježbama spojen je kao što je opisano na predavanjima (nisu svi dijelovi potrebni u vašem zadatku):
+
+RTC i GPIO1 i GPIO2 - kao na prethodnim labosima (ovdje se ne koriste)
+
+DMAC je na adresi 0x 00FF 0000. Na njega je spojeno:
+
+·         na INTR je spojeno IRQ ili FIQ (ovisno kako odaberete gumbom IRQ/FIQ)
+
+·         nisu spojeni: DMAREQ0/DMAACK0 i DMAREQ1/DMAACK1
+
+·         na DMAREQ2/DMAACK2 je spojena Ulazna jedinica
+
+·         na DMAREQ3/DMAACK3 je spojena Izlazna jedinica
+
+Ulazna jedinica (Input unit) je na adresi 0x FFFF 0D00 (s nje se čitaju redom brojevi 1, 2, 3, ...)
+
+·         spojena je na DMAREQ2/DMAACK2
+
+Izlazna jedinica (Output unit) je na adresi 0x FFFF 0C00
+
+·         spojena je na DMAREQ3/DMAACK3
+
+ 
+
+Pomoću DMA-prijenosa treba prvo prenijeti 16 podataka iz Ulazne jedinice u memorijski blok M1, a zatim treba prenijeti 16 podataka iz iste ulazne jedinice u memorijski blok M2. I za jedan i za drugi blok, kraj DMA‑prijenosa treba detektirati prekidom IRQ.
+
+Dok traju oba DMA-prijenosa, glavni program treba obaviti "koristan posao", a to je inicijaliziranje registra R11 na 11 i zatim njegovo smanjivanje za jedan dok ne dođe do nule (smanjivanje R11 do nule se radi samo jednom, a ne za svaki DMA-prijenos zasebno). Nakon što je to obavljeno, i nakon što završi i drugi DMA-prijenos, tada treba zaustaviti glavni program (ne zaustavljati izravno prekidni potprogram, nego baš glavni program).
+
+U memorijskim blokovima M1 i M2 neka početno budu upisane nule (upišite 16 nula pomoću DW tako da lakše pratite punjenje blokova).
+
+Opaska: veličinu bloka i širinu podatka ne možete birati već ona mora biti prilagođena Ulaznoj odnosno Izlaznoj jedinici.
+
+Provjera ispravnosti programa:
+
+Namjestite brzinu simulacije na cca 0 sek do 0,01 sek tako da možete pratiti kako se prenose podatci. Otvorite Ulaznu jedinicu u posebnom Preview prozoru da možete vidjeti prenosi li DMAC ispravne podatke (prvo brojeve od 1 do 16 pa zatim 17 do 32). U drugom Preview prozoru možete otvoriti DMAC i pratiti prijenos pojedinih podataka (ali za to ćete možda morati još malo usporiti simulaciju). U MemView prozoru pratite blokove M1 i M2 da vidite da li se ispravno pune podatcima.
+
+Nakon što glavni program završi, u memorijskim blokovima moraju biti ispravni brojevi koje ste prenijeli DMA‑prijenosom.

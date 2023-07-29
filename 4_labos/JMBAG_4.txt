@@ -1,0 +1,84 @@
+        ORG 0
+        B INIT
+
+
+        ORG 0x1C
+FIQ     STMFD SP!, {LR}
+
+        BL POSL
+
+        LDR R10, GPIO2
+
+        LDRB R8, GPIO2A
+
+        TST R9, #0b01000000     ; zuta = 1?
+        MOVNE R9, #0b00100000   ; DA -> crvena = 1, zuta = 0
+        MOVEQ R9, #0b01000000   ; NE -> crvena = 0, zuta = 1
+        
+        TST R8, #0b00000010     ; sklopka ukljucena?
+        BNE UKLJ
+
+        STRB R9, [R10]
+        B RETURN
+
+UKLJ    MOV R11, #0
+        STRB R11, [R10]
+        
+RETURN  LDMFD SP!, {LR}
+        SUBS PC, LR, #0x4
+
+
+INIT    MSR CPSR, #0b11010001   ; FIQ mode
+        MOV R9, #0b01000000
+        MOV R13, #0x10000
+        
+        MSR CPSR, #0b11010011   ; SVC mode
+        MOV R13, #0xFC00
+        
+        LDR R0, GPIO2
+        MOV R2, #0b11100000
+        STRB R2, [R0, #0x8]      ; GPIO2 init LED -> izlaz (1)
+        MOV R2, #0b00000000
+        STRB R2, [R0]
+
+        LDR R1, RTC
+        MOV R2, #0x0
+        STR R2, [R1, #0xC]      ; 0 -> LR
+        
+        MOV R2, #0xF
+        STR R2, [R1, #0x4]      ; 15 -> MR
+
+        MOV R2, #0x1
+        STR R2, [R1, #0x10]     ; 1 -> CR
+
+        MRS R2, CPSR
+        BIC R2, R2, #0b01000000     
+        MSR CPSR, R2            ; 0 -> F (CPSR)
+
+        MOV R2, #0b01000000
+        STRB R2, [R0]           ; zuti LED u 1
+
+
+MAIN    LDRB R2, [R0]
+        STRB R2, GPIO2A
+        B MAIN
+        
+    
+
+POSL    STMFD SP!, {LR, R8, R9}
+        LDR R8, RTC
+        
+        MOV R9, #0
+        STR R9, [R8, #0xC]
+        STR R9, [R8, #0x8]
+        
+        LDMFD SP!, {LR, R8, R9}
+        MOV PC, LR
+
+
+END     SWI 0x123456
+
+
+GPIO2   DW 0xFFFF0B00
+RTC     DW 0xFFFF0E00
+GPIO2A  DB 0x0

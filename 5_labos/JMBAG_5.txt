@@ -1,0 +1,86 @@
+        ORG 0x0
+        B INIT
+
+
+        ORG 0x18
+        B IRQ
+
+
+
+        ORG 0x20
+INIT    MSR CPSR, #0b11010010   ; enter IRQ mode
+        MOV R13, #0x10000       ; IRQ stack init
+        
+        MSR CPSR, #0b11010011   ; enter SVC mode
+        MOV R13, #0xFC00        ; SVC stack init
+
+        MRS R0, CPSR
+        BIC R0, R0, #0b10000000 ; enable IRQ mode
+        MSR CPSR, R0
+
+        LDR R0, IU              ; IU init
+        MOV R1, #0x20
+        STR R1, [R0, #4]
+        
+        LDR R0, DMAC            ; DMAC init
+
+        LDR R1, IU
+        STR R1, [R0, #0x10]     ; SrcAddr
+        MOV R1, #M1              
+        STR R1, [R0, #0x14]     ; DestAddr
+        LDR R1, BROJ2
+        STR R1, [R0, #0x18]     ; Sizes
+        MOV R1, #0b11100110     
+        STR R1, [R0, #0x1C]     ; Config
+
+        MOV R2, #0
+
+        MOV R1, #1
+        STR R1, [R0]            ; Control
+        
+
+MAIN    LDR R11, BROJ
+LOOP    SUB R11, R11, #1
+        CMP R11, #0
+        BNE LOOP
+
+WAIT    CMP R2, #2
+        BNE WAIT
+        B END
+        
+
+IRQ     STMFD SP!, {LR, R1}
+
+        ADD R2, R2, #1
+        
+        MOV R1, #0
+        STR R1, [R0]            ; Control
+
+        MOV R1, #1
+        STR R1, [R0, #0x4]      ; Clear
+
+        MOV R1, #M2        
+        STR R1, [R0, #0x14]     ; DestAddr
+
+        LDR R1, BROJ2
+        STR R1, [R0, #0x18]     ; Sizes
+        MOV R1, #0b11100110  
+
+        MOV R1, #1
+        STR R1, [R0]            ; Control
+        
+RETURN  LDMFD SP!, {LR, R1}
+        SUBS PC, LR, #0x4
+
+
+END     SWI 0x123456
+
+
+
+DMAC    DW 0x00FF0000
+IU      DW 0xFFFF0D00   ; input unit
+OU      DW 0xFFFF0C00   ; output unit
+M1      DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+M2      DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BROJ    DW 11
+BROJ2   DW 0b010000000010000

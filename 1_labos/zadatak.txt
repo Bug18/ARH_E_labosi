@@ -1,0 +1,9 @@
+ZADATAK:
+
+Blok podataka na adresi 0x100 sadrži 16-bitne NBC podatke u big endianu. Kraj bloka označen je brojem 0000 ili brojem FFFF. Treba zbrojiti podatke u bloku (bez zaključnog podatka) tako da rezultat bude u 16 bitnom NBC-u u little endianu, a zbroj treba spremiti na 16-bitnu lokaciju ZBROJ.
+
+Blok sadrži podatke (heksadekadski):   1234, 5678, 2BC3, 0012, 5F01 i terminator 0000 (upišite ih ili bajt po bajt, ili u poluriječima s okrenutim bajtovima)
+
+ 
+
+Provjera ispravnosti programa: u lokaciji ZBROJ mora biti F382 (isprobajte radi li vam program i za terminator FFFF)

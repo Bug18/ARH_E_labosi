@@ -1,0 +1,40 @@
+Model na vježbama spojen je kao što je opisano na predavanjima (nisu svi dijelovi potrebni u vašem zadatku):
+
+GPIO1 je na adresi 0x FFFF 0F00. Na njega su spojeni:
+
+Vrata A: temperaturni uređaj u standardnom spoju
+TEMP = XPA[0..5]
+RDY = XPA[6]
+ACK = XPA[7]
+Vrata B: LCD u standardnom spoju
+DATA = XPB[0..6]
+WR = XPB[7]
+GPIO2 je na adresi 0x FFFF 0B00. Na njega su spojeni:
+
+Vrata A:
+tipka = XPA[0]  (kad se klikne mišem, daje impuls od cca 50 clockova, ako dva uzastopna ispitivanja stanja traju kraće, onda nakon dočekane visoke razine treba čekati i na povratak u nisku razinu)
+sklopka = XPA[1] (kad se klikne mišem, mijenja stanje iz 0 u 1 i obratno)
+nije spojeno XPA[2..4]
+crveni LED = XPA[5]
+žuti LED = XPA[6]
+zeleni LED = XPA[7]
+Vrata B: ne koriste se
+
+
+Svaki puta kad se pritisne tipka, treba pročitati temperaturu s temperaturnog uređaja. Za svaki slučaj, nakon što ste prepoznali da je tipka pritisnuta pričekajte da se tipka otpusti.
+
+Zatim treba temperaturu spremiti u lokaciju LAST. Nakon toga treba na LCD ispisati „H“ (high) ako je temperatura strogo veća od 19  ili „L“ (low) u suprotnom slučaju. Za slanje znaka na LCD upotrijebite funkciju LCDWR s predavanja (po potrebi je prilagodite, ali onda u komentaru uz funkciju opišite što je promijenjeno).
+
+Glavni program radi beskonačno.
+
+ 
+
+ 
+
+Provjera ispravnosti programa:
+
+Na desnoj strani temperaturnog uređaja ispisuje se trenutačna temperatura, a na lijevoj strani se ispisuje izmjerena temperatura (može se provjeriti je li očitanje ispravno tako da se prati lokacija LAST).
+
+Simulaciji namjestite pogodnu brzinu (gornji desni klizač negdje na: 0 sek +- jedan korak) tako da možete pratiti iznose. Ovisno o trenutačnoj temperaturi promatrajte je li ispis na LCD-prikazniku ispravan.
+
+Ne zaboravite pritiskati tipku da bi se očitala temperatura. U animaciji LCD-a trebate vidjeti slovo H/L, a ako se stanje prikaza ne mijenja, trebali bi vidjeti ponovni upis u ulazne registre i kratkotrajnu promjenu strelice u crvenu boju.

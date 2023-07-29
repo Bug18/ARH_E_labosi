@@ -1,0 +1,9 @@
+Napišite potprogram KUB(Y) koji prima 32-bitni 2'k parametar Y preko stoga, kubira ga i vraća rezultat Y3 registrom R0.
+
+Napišite funkciju FUN koja računa FUN(X) = X3 + 8*X za 32-bitne 2'k brojeve. Potprogram prima broj X preko fiksne lokacije PRM, a rezultat vraća preko fiksne lokacije REZ. Za izračun treba koristiti potprogram KUB
+
+U memoriji na adresi BLK je blok od pet 32-bitnih 2'k podataka: 5, -5, 0, 100, -200.
+
+Napišite glavni program koji za svaki podatak X iz memorijskog bloka BLK računa 3*FUN(X) i rezultat sprema u novi blok RBLK koji se nalazi neposredno iza bloka BLK.
+
+Provjera ispravnosti programa: rješenja u RBLK su 495, -495, 0, 3002400, -24004800

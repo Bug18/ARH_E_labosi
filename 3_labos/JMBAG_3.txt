@@ -1,0 +1,77 @@
+
+INIT    MOV SP, #0x10000
+        
+        LDR R0, GPIO1
+        MOV R2, #0b10000000
+        STR R2, [R0, #0x8]      ; smjer podataka za vrata A, prvih 7 bitova su ulazni (0), a 8. je izlazni (1)
+ 
+        MOV R2, #0b00000000
+        STR R2, [R0, #0xC]      ; smjer podataka za vrata B, svi su izlazni (0)
+
+        LDR R1, GPIO2
+        MOV R2, #0b11100000     
+        STR R2, [R1, #0x8]      ; XPA0 (tipka) u ulazni
+
+MAIN
+WAIT    LDRB R2, [R1]           ; ucitavam registar stanja za tipku
+        TST R2, #0b00000001     ; test ako je tipka pritisnuta
+        
+        BEQ WAIT
+        
+SLEEP   LDRB R2, [R1]
+        CMP R2, #0b00000000     ; test ako je tipka otpustena
+        
+        BNE SLEEP
+
+        
+        MOV R3, #0b10000000     ; postavi ACK u 1
+        STRB R3, [R0]           ; pokrece mjerenje temp
+
+RDY     LDRB R4, [R0]
+        TST R4, #0b01000000     ; test RDY u 1
+        
+        BEQ RDY
+
+        MOV R3, #0b00000000     ; reset ACK u 0
+        STRB R3, [R0]
+
+        AND R4, R4, #0b00111111
+        STRB R4, LAST
+
+        CMP R4, #0b00010011     ; usporedi TEMP s 19
+
+        MOV R5, #0x0D           ; ocisti LCD
+        BL LCDWR
+        MOV R5, #0x0A
+        BL LCDWR
+        
+        MOVHI R5, #0x48          ; ako je TEMP > 19 onda R5='H'
+        MOVLS R5, #0x4C          ; ako je TEMP <= 19 onda R5='L'
+        BL LCDWR
+        MOV R5, #0x0A
+        BL LCDWR
+
+        B MAIN
+
+
+LCDWR   STMFD R13!, {R0, R1, R2, R3, R4, R5}
+        
+        AND R5, R5, #0x7F       ; spusti WR u 0
+        STRB R5, [R0, #0x4]     ; posalje znak (R5) u LCD
+
+        ORR R5, R5, #0x80       ; digne WR u 1
+        STRB R5, [R0, #0x4]           
+        
+        AND R5, R5, #0X7F       ; spusti WR u 0
+        STRB R5, [R0, #0x4]
+
+        LDMFD R13!, {R0, R1, R2, R3, R4, R5}
+        MOV PC, LR        
+ 
+END     SWI 0x123456
+
+
+        ORG 0x1000
+GPIO1   DW 0xFFFF0F00
+GPIO2   DW 0xFFFF0B00
+LAST    DB 0x0

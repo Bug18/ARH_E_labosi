@@ -1,0 +1,43 @@
+ZADATAK:
+Model na vježbama spojen je kao što je opisano na predavanjima (nisu svi dijelovi potrebni u vašem zadatku):
+
+GPIO1 je na adresi 0x FFFF 0F00. Na njega su spojeni:
+
+Vrata A: temperaturni uređaj u standardnom spoju
+TEMP = XPA[0..5]
+RDY = XPA[6]
+ACK = XPA[7]
+Vrata B: LCD u standardnom spoju
+DATA = XPB[0..6]
+WR = XPB[7]
+GPIO2 je na adresi 0x FFFF 0B00. Na njega su spojeni:
+
+Vrata A:
+tipka = XPA[0]  (kad se klikne mišem, daje impuls od cca 50 clockova, ako dva uzastopna ispitivanja stanja traju kraće, onda nakon dočekane visoke razine treba čekati i na povratak u nisku razinu)
+sklopka = XPA[1] (kad se klikne mišem, mijenja stanje iz 0 u 1 i obratno)
+nije spojeno XPA[2..4]
+crveni LED = XPA[5]
+žuti LED = XPA[6]
+zeleni LED = XPA[7]
+Vrata B: ne koriste se
+RTC je na adresi 0x FFFF 0E00. Na njega su spojeni:
+
+na ulazu je signal stalne frekvencije (clock/25) ili gumb sig (ovisi kako odaberete gumbom clk/usr)
+na INTR je spojeno IRQ ili FIQ (ovisno kako odaberete gumbom IRQ/FIQ) - ne zaboravite odabrati FIQ koji se koristi u vašem zadatku
+
+
+Na početku programa treba upaliti žuti LED. RTC koji postavlja prekide FIQ treba nakon 15 impulsa ugasiti žuti i upaliti crveni LED, a nakon sljedećih 15 impulsa treba napraviti obratno: ugasiti crveni i upaliti žuti LED i to se tako ponavlja. Kompletno posluživanje RTC-a u prekidu treba obaviti u posebnom potprogramu POSL (ne prima parametre i nema rezultat). Pod "posluživanje RTC-a" misli se na sve što se radi s RTC‑om (dojava prihvata prekida, reinicijalizacija itd., dakle sve naredbe LDR/STR koje adresiraju RTC). Svi ostali poslovi prekidnog potprograma koji se ne odnose na komunikaciju s RTC-om trebaju ostati u prekidnom potprogramu.
+
+Glavni program konstantno ispituje stanje sklopke ((prekidni potprogram ne ispituje sklopku izravno, ali smije pročitati njeno stanje iz neke memorijske lokacije u koju vrijednost upisuje glavni program). Ako je sklopka uključena, onemogućuje se prikaz LED-ica u prekidnom potprogramu (glavni program sam ne mijenja stanje LED-ica). Ako je prikaz LED-ica onemogućen, prekidni potprogram radi sve kao što je opisano i određuje stanje LED-ica kao da će ih prikazati, jedino što drži LED‑ice isključenima. Na taj način će nakon ponovnog isključenja sklopke, LED-ice imati ispravno stanje kakvo bi imale da je sklopka bila isključena cijelo vrijeme.
+
+
+
+
+
+Provjera ispravnosti programa:
+
+Kao prvo, nemojte zaboraviti odabrati vrstu prekida na RTC-u (gumb IRQ/FIQ na izlazu iz RTC-a).
+
+Treba pratiti pojavu prekida (vidi se po kratkoj crvenoj strelici na izlazu INTR iz RTC-a) i gledati mijenjaju li se LED-ice kako je zadano u zadatku. Brojač i MR u RTC-u vidljivi su u glavnom animacijskom polju (main preview) i kad brojač dosegne vrijednost MR-a trebao bi se pojaviti prekid.
+
+Ne zaboravite provjeriti radi li program ispravno u ovisnosti o stanju sklopke.
