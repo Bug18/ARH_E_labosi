@@ -5,5 +5,4 @@ Ne prepisujte ove labose jer ce vas skuzit odmah ak bilo koji dio copy-paste-ate
 Ovo je cisto informativno kao dodatni primjeri da skuzite kak povezati razlicito gradivo u cijeli labos i komplektni program.
 
 ## Pomoc:
-Ako trebate dodatnu pomoc ili objasnjenje slobodno me kontaktirajte (ali ono ak vam stvarno nitko drugi ne moze pomoc).
-I btw morate poslat mail na vrijeme.
+Ako trebate dodatnu pomoc ili objasnjenje slobodno me kontaktirajte (otvorite issue na ovaj repository)
